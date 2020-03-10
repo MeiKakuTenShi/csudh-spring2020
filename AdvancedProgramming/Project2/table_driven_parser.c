@@ -48,17 +48,17 @@ struct table_item
 };
 // complete hard-coded parse table -- based on figure 2.20
 struct table_item parseTable[sizeof(nonterminals)/sizeof(*nonterminals)][sizeof(names)/sizeof(*names)] = {
-    {{0, {stmt_list, $$}},          {1, {}},                        {0, {stmt_list, $$}},   {0, {stmt_list, $$}},       {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {0, {stmt_list, $$}}},  // program
-    {{0, {stmt, stmt_list}},        {1, {}},                        {0, {stmt, stmt_list}}, {0, {stmt, stmt_list}},     {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {0, {eps}}},            // stmt_list
-    {{0, {id, becomes, expr}},      {1, {}},                        {0, {read, id}},        {0, {write, expr}},         {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // stmt
-    {{0, {term, term_tail}},        {0, {term, term_tail}},         {1, {}},                {1, {}},                    {1, {}}, {0, {term, term_tail}},        {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // expr
-    {{0, {eps}},                    {1, {}},                        {0, {eps}},             {0, {eps}},                 {1, {}}, {1, {}},                       {0, {eps}}, {0, {add_op, term, term_tail}},     {0, {add_op, term, term_tail}},     {1, {}},                                {1, {}},                                {0, {eps}}},            // term_tail
-    {{0, {factor, factor_tail}},    {0, {factor, factor_tail}},     {1, {}},                {1,},                       {1, {}}, {0, {factor, factor_tail}},    {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // term
-    {{0, {eps}},                    {1, {}},                        {0, {eps}},             {0, {eps}},                 {1, {}}, {1,},                          {0, {eps}}, {0, {eps}},                         {0, {eps}},                         {0, {mult_op, factor, factor_tail}},    {0, {mult_op, factor, factor_tail}},    {0, {eps}}},            // factor_tail
-    {{0, {id}},                     {0, {number}},                  {1, {}},                {1, {}},                    {1, {}}, {0, {lpar, expr, rpar}},       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // factor
-    {{1, {}},                       {1, {}},                        {1, {}},                {1, {}},                    {1, {}}, {1, {}},                       {1, {}},    {0, {plus}},                        {0, {minus}},                       {1, {}},                                {1, {}},                                {1, {}}},               // add_op
-    {{1, {}},                       {1, {}},                        {1, {}},                {1, {}},                    {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {0, {star}},                            {0, {slash}},                           {1, {}}},               // mult_op
-};//    id,                         number,                         read,                   write,                        :=,       (,                             ),          +,                                  -,                                  *,                                       /,                                      $$
+    {{0, {stmt_list, $$}},                  {1, {}},                        {0, {stmt_list, $$}},       {0, {stmt_list, $$}},       {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {0, {stmt_list, $$}}},  // program
+    {{0, {stmt, stmt_list}},                {1, {}},                        {0, {stmt, stmt_list}},     {0, {stmt, stmt_list}},     {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {0, {eps}}},            // stmt_list
+    {{0, {identifier, assignment, expr}},   {1, {}},                        {0, {input, identifier}},   {0, {output, expr}},        {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // stmt
+    {{0, {term, term_tail}},                {0, {term, term_tail}},         {1, {}},                    {1, {}},                    {1, {}}, {0, {term, term_tail}},        {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // expr
+    {{0, {eps}},                            {1, {}},                        {0, {eps}},                 {0, {eps}},                 {1, {}}, {1, {}},                       {0, {eps}}, {0, {add_op, term, term_tail}},     {0, {add_op, term, term_tail}},     {1, {}},                                {1, {}},                                {0, {eps}}},            // term_tail
+    {{0, {factor, factor_tail}},            {0, {factor, factor_tail}},     {1, {}},                    {1,},                       {1, {}}, {0, {factor, factor_tail}},    {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // term
+    {{0, {eps}},                            {1, {}},                        {0, {eps}},                 {0, {eps}},                 {1, {}}, {1,},                          {0, {eps}}, {0, {eps}},                         {0, {eps}},                         {0, {mult_op, factor, factor_tail}},    {0, {mult_op, factor, factor_tail}},    {0, {eps}}},            // factor_tail
+    {{0, {identifier}},                     {0, {number}},                  {1, {}},                    {1, {}},                    {1, {}}, {0, {lpar, expr, rpar}},       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // factor
+    {{1, {}},                               {1, {}},                        {1, {}},                    {1, {}},                    {1, {}}, {1, {}},                       {1, {}},    {0, {plus}},                        {0, {minus}},                       {1, {}},                                {1, {}},                                {1, {}}},               // add_op
+    {{1, {}},                               {1, {}},                        {1, {}},                    {1, {}},                    {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {0, {star}},                            {0, {slash}},                           {1, {}}},               // mult_op
+};//    id,                                 number,                         read,                       write,                        :=,       (,                             ),          +,                                  -,                                  *,                                       /,                                      $$
 
 // get row index into parse table
 int nonTermInd(symbol s) {
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
     if (argc > 1)
     {
         strcat(file_name, argv[1]);
-        printf("opening file: %s\n", file_name);
+        printf("opening file: %s\n\n\n", file_name);
         src = fopen(file_name, "r");
 
         // failed to open file
@@ -212,15 +212,13 @@ int main(int argc, char* argv[])
     do
     {
         expSymbol = parseStack[topOfStack];
-        parseStack[topOfStack] = NONE;
-
-        if(topOfStack > 0)
-            topOfStack--;
+        printf("\ncurrent expected symbol: %s\n", sym_names[expSymbol]);
+        printf("current input token: %s\n\n", names[input_token]);
 
         // check if top of stack is terminal or non-terminal
         if (isTerminal(expSymbol))
         {
-            printf("expected symbol is terminal: %s", expSymbol);
+            // printf("expected symbol is terminal: %s", sym_names[expSymbol]);
             // TODO: match expected goes here
             match(expSymbol);
 
@@ -232,20 +230,22 @@ int main(int argc, char* argv[])
 
         } else
         {
+            // printf("expected symbol is not a terminal: %s\n", sym_names[expSymbol]);
+
             ntermInd = nonTermInd(expSymbol);
             tokInd = tokenInd(input_token);
 
-            if (ntermInd != -1 && tokInd != -1)
+            // printf("parse table indexes\t symbol: [%d], token: [%d]\n", ntermInd, tokInd);
+
+            if (ntermInd >= 0 && tokInd >= 0)
             {
                 // check parse table
                 item = parseTable[ntermInd][tokInd];
 
-                printf("Indexing parse table [%s][%s]; result: %s", ntermInd, tokInd, (item.action) ? "error" : "no error");
-
-                if (item.action)
+                if (item.action == 1)
                 {
                     // syntax error found
-                    printf("\nSYNTAX ERROR\n");               
+                    printf("\nSYNTAX ERROR - incompatible (%s - %s)\n", sym_names[expSymbol], names[input_token]);               
                 } else
                 {
                     // push production to stack
@@ -253,11 +253,20 @@ int main(int argc, char* argv[])
                     {
                         if (item.production[i] != NULL)
                         {
-                            parseStack[++topOfStack] = item.production[i];
-                            printf("\tPushing to parse stack: %s\n", item.production[i]);
+                            printf("\tPushing to parse stack: %s\n", sym_names[item.production[i]]);
+                            parseStack[topOfStack] = item.production[i];
+                            if (i != 0)
+                                topOfStack++;
                         }
                     }
                 }
+
+                printf("parse stack: \n");
+                for (int i = topOfStack; i >= 0; i--)
+                {
+                    printf("\t(%d): %s\n", i, sym_names[parseStack[i]]);
+                }
+                printf("\n\n");
             }
             else
             {
@@ -269,7 +278,7 @@ int main(int argc, char* argv[])
 
         
 
-    }while(parseStack[0] != NULL);
+    }while(topOfStack > 0);
 
     if (src != NULL)
         fclose(src);
