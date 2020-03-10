@@ -9,7 +9,8 @@ typedef enum {read, write, id, literal, becomes,
                 addOp, subOp, mulOp, divOp, lparen, rparen, eof} token;
 
 extern char token_image[];
-
+int lineNum;
+char errorSend[50] = "improper formatting. check your syntax carefully.";
 char* names[] = {"read", "write", "id", "literal", "becomes",
                 "add", "sub", "mul", "div", "lparen", "rparen", "eof"};
 
@@ -18,7 +19,9 @@ static token input_token;
 FILE *src;
 
 void error() {
-    printf("syntax error \n");
+    lineNum=getLine();
+    printf("syntax error on line #%d \n", lineNum);
+    printf("\tgetting error:  **  %s **\n", getError());
     exit(1);
 }
 
@@ -33,7 +36,7 @@ void match(token expected)
         if(expected != eof)
         {
             input_token = scan();
-            printf ("the token is %s \n", names[input_token]);
+            printf ("the token is %s \n",names[input_token]);
         }
     }
     else error();
@@ -65,7 +68,10 @@ void program() {
             stmt_list();
             match(eof);
             break;
-        default: error();
+        default:
+            strcpy(errorSend, "check your comment syntax");
+            setError(errorSend);
+            error();
     }
 }
 
@@ -80,7 +86,8 @@ void stmt_list() {
             break;
         case eof:
             break;          /*  epsilon production */
-        default: error();
+        default:
+            error();
     }
 }
 
@@ -89,6 +96,9 @@ void stmt() {
     switch (input_token) {
         case id:
             match(id);
+            //errorSend[50]="incorrect assignment statement";
+            strcpy(errorSend, "identifier or assignment formatted incorrectly");
+            setError(errorSend);
             match(becomes);
             expr();
             break;
@@ -98,9 +108,11 @@ void stmt() {
             break;
         case write:
             match(write);
+
             expr();
             break;
-        default: error();
+        default:
+            error();
     }
 }
 
@@ -113,7 +125,8 @@ void expr() {
             term();
             term_tail();
             break;
-        default: error();
+        default:
+            error();
     }
 }
 
@@ -145,7 +158,9 @@ void term() {
             factor();
             factor_tail();
             break;
-        default: error();
+        default:
+
+            error();
     }
 }
 
@@ -166,7 +181,8 @@ void factor_tail() {
         case write:
         case eof:
             break;          /*  epsilon production */
-        default: error();
+        default:
+            error();
     }
 }
 
@@ -182,9 +198,14 @@ void factor() {
         case lparen:
             match(lparen);
             expr();
+            strcpy(errorSend, "right parenthesis missing");
+            setError(errorSend);
             match(rparen);
             break;
-        default: error();
+        default:
+            strcpy(errorSend, "incorrect character inside parenthesis");
+            setError(errorSend);
+            error();
     }
 }
 

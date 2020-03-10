@@ -2,6 +2,6 @@
 read a
 read b
 area := a * b
-perimeter := 2 * (a + b
+perimeter := 2 * a + b)
 write area
 write perimeter
