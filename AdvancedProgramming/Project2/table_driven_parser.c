@@ -22,11 +22,11 @@ static token input_token;
  ****************************************************************************/
 
 // all symbols in language
-typedef enum {NONE, program, stmt_list, stmt, expr, term_tail, term,
+typedef enum {program, stmt_list, stmt, expr, term_tail, term,
                 factor, factor_tail, mult_op, add_op,
                 $$, eps, identifier, assignment, input, output, plus, 
                 minus, star, slash, lpar, rpar, number} symbol;
-char *sym_names[] = { "Null", "program", "stmt_list", "stmt", "expr",
+char *sym_names[] = {"program", "stmt_list", "stmt", "expr",
                       "term_tail", "term", "factor", "factor_tail",
                       "mult_op", "add_op", "$$", "epsilon", "id",
                       ":=", "read", "write", "+", "-", "*", "/",
