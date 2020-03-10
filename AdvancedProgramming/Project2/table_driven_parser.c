@@ -22,19 +22,19 @@ static token input_token;
  ****************************************************************************/
 
 // all symbols in language
-typedef enum {program, stmt_list, stmt, expr, term_tail, term,
+typedef enum {NONE, program, stmt_list, stmt, expr, term_tail, term,
                 factor, factor_tail, mult_op, add_op,
-                $$, eps, id, becomes, read, write, plus, 
+                $$, eps, identifier, assignment, input, output, plus, 
                 minus, star, slash, lpar, rpar, number} symbol;
-char *sym_names[] = { "program", "stmt_list", "stmt", "expr",
+char *sym_names[] = { "Null", "program", "stmt_list", "stmt", "expr",
                       "term_tail", "term", "factor", "factor_tail",
                       "mult_op", "add_op", "$$", "epsilon", "id",
                       ":=", "read", "write", "+", "-", "*", "/",
                       "(", ")", "number"};
 // symbols that are terminals
 symbol terminals[] = {slash, star, minus, plus,
-                      number, id, lpar, rpar, eps,
-                      becomes, read, write, $$};
+                      number, identifier, lpar, rpar, eps,
+                      assignment, input, output, $$};
 // symbols that are nonterminals
 symbol nonterminals[] = {program, stmt_list, stmt,
                          expr, term_tail, term, factor,
@@ -136,6 +136,9 @@ int isTerminal(symbol s) {
 }
 
 void match(symbol s) {
+    printf("current symbol to match: %s", s);
+    return;
+
     switch(input_token) {
         case read:
             if (s == read) {
@@ -165,11 +168,6 @@ void match(symbol s) {
             break;
         case eof:
             break;
-        default:
-            void error() {
-    printf("syntax error \n");
-    exit(1);
-}
     }
 }
 
@@ -214,7 +212,7 @@ int main(int argc, char* argv[])
     do
     {
         expSymbol = parseStack[topOfStack];
-        parseStack[topOfStack] = NULL;
+        parseStack[topOfStack] = NONE;
 
         if(topOfStack > 0)
             topOfStack--;

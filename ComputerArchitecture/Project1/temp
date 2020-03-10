@@ -1,179 +1,72 @@
+# PRINT AVERAGE
+mtc1    $t5, $f2
+mtc1    $t0, $f3
+div.s   $f2, $f2, $f3
 
-
-
-
-# new line
-la	$a0, new_line
-li	$v0, 4
+li      $v0, 4
+la      $a0, new_line
+syscall
+la      $a0, tab_line
+syscall
+la      $a0, output_avg
 syscall
 
-# out of loop when we got 10 numbers
-la	$t0, array
-li  $t1, 0            # int i
-li	$t2, 0            # int min
-li	$t3, 0            # int max
-li  $t4, 0            # float avg
-
-# loop all numbers in array
-loop:
-# condition to terminate loop
-sltiu $t7, $t1, 10
-beq   $t7, $0,  end
-
-# load current value to $t5
-lw    $t5, ($t0)
-
-# print current value
-la	$a0, cur_val
-li	$v0, 4
+li      $v0, 2
+mov.s   $f12, $f2
 syscall
 
-addu $a0, $0, $t5
-li   $v0, 1
+# SORT ARRAY
+li      $v0, 4
+la      $a0, new_line
+syscall
+la      $a0, tab_line
+syscall
+la      $a0, output_sort
 syscall
 
-# new line
-la	$a0, new_line
-li	$v0, 4
+li      $t2, 0
+
+print_sort:
+slt     $t6, $t2, $t0
+beq     $t6, $0,  end_sort
+
+move    $t1, $t7
+li      $t5, 0
+
+lw      $t4, ($t1)
+
+find_max:
+slt     $t6, $t5, $t0
+beq     $t6, $0,  max_done
+
+lw      $t3, ($t1)
+
+slt     $t6, $t4, $t3
+movn    $t4, $t3, $t6
+
+addiu	$t1, $t1, 4
+addiu   $t5, $t5, 1
+
+j       find_max
+max_done:
+
+li      $v0, 1
+add     $a0, $0, $t4
 syscall
 
-# figure out min $t2
-movz $t2, $t5, $t1
-beqz $t5, val_zero
+addiu   $a1, $t2, 1
+slt     $t6, $a1, $t0
+beq     $t6, $0,  no_sep
 
-slt  $t6, $t5, $t2
-
-# print comparison result
-la	$a0, lt_res
-li	$v0, 4
+li      $v0, 4
+la      $a0, item_sep
 syscall
 
-addu $a0, $0, $t6
-li   $v0, 1
-syscall
+no_sep:
+        
+li      $t6, -999999
+sw      $t6, ($t4)
 
-# new line
-la	$a0, new_line
-li	$v0, 4
-syscall
-
-movn  $t2, $t5, $t6
-
-val_zero:
-
-# print current min
-la	$a0, cur_min
-li	$v0, 4
-syscall
-
-addu $a0, $0, $t2
-li   $v0, 1
-syscall
-
-# new line
-la	$a0, new_line
-li	$v0, 4
-syscall
-
-# check if greater than max $t3
-slt  $t6, $t3, $t5
-movn  $t3, $t5, $t6
-
-# print current max
-la	$a0, cur_max
-li	$v0, 4
-syscall
-
-addu $a0, $0, $t3
-li   $v0, 1
-syscall
-
-# new line
-la	$a0, new_line
-li	$v0, 4
-syscall
-
-# sum current val for avg $t4
-addu $t4, $t4, $t5
-# advance $t0 by 4
-addiu	$t0, $t0, 4
-# i++
-addiu $t1, $t1, 1
-
-# print current avg sum
-la	$a0, cur_sum
-li	$v0, 4
-syscall
-
-addu $a0, $0, $t4
-li   $v0, 1
-syscall
-
-# new line
-la	$a0, new_line
-li	$v0, 4
-syscall
-syscall
-
-j loop
-end:
-# calc avg
-div $t4, $10
-
-
-
-# ------------ PRINT RESULTS -----------
-# print string "Array Details"
-la	$a0, output
-li	$v0, 4
-syscall
-
-# tab
-la	$a0, tab_line
-li	$v0, 4
-syscall
-
-# print string "min"
-la	$a0, output_min
-li	$v0, 4
-syscall
-
-# print min
-addu $a0, $0, $t2
-li   $v0, 1
-syscall
-
-# new line
-la	$a0, new_line
-li	$v0, 4
-syscall
-
-# tab
-la	$a0, tab_line
-li	$v0, 4
-syscall
-
-# print string "max"
-la	$a0, output_max
-li	$v0, 4
-syscall
-
-# print max
-addu $a0, $0, $t3
-li   $v0, 1
-syscall
-
-# new line
-la	$a0, new_line
-li	$v0, 4
-syscall
-
-# tab
-la	$a0, tab_line
-li	$v0, 4
-syscall
-
-# print string "avg"
-la	$a0, output_avg
-li	$v0, 4
-syscall
+addiu   $t2, $t2, 1
+j       print_sort
+end_sort:

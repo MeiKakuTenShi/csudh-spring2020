@@ -35,14 +35,13 @@ function handleFileSelect(evt) {
                     // console.log('line comment found!\nline #' + (i + 1) + ': ' + lines[i]);
                 } else if(multi_comment_start.test(lines[i])) // check for valid multi-line comment; catch invalid comments
                 {
-                    // console.log('start of multi-line comment found!\nline #' + (i + 1) + ': ' + lines[i]);
+                    console.log('start of multi-line comment found!\nline #' + (i + 1) + ': ' + lines[i]);
 
                     let start = i;
                     // find end of multiline comment
                     for(;start < lines.length;) {
                         if(multi_comment_end.test(lines[start])) {
-                            // console.log('end of multi-line comment found!\nline #' + (start + 1) + ': ' + lines[start]);
-                            start++;
+                            console.log('end of multi-line comment found!\nline #' + (start + 1) + ': ' + lines[start]);
                             i = start;
                             break;
                         } else {

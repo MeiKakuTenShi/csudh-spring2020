@@ -26,7 +26,6 @@ for ($i = 0; $i < count($lines);)  {
     $start = $i;
     for(;$start < count($lines);) {
       if(preg_match($multi_comment_end, $lines[$start]) == 1) {
-        $start++;
         $i = $start;
         break;
       } else {
