@@ -4,6 +4,9 @@
 #include "ctype.h"
 
 int lineNum =1; //counter for line number
+char errorMessage[50] = "improper formatting. check your syntax carefully.";
+
+
 int mStart;
 typedef enum {read, write, id, literal, becomes,
                 addOp, subOp, mulOp, divOp, lparen, rparen, eof} token;
@@ -18,6 +21,13 @@ void setSource(FILE *src)
     fileSrc = src;
 }
 
+void setError(const char* s){
+    strcpy(errorMessage, s);
+}
+
+const char* getError(){
+    return errorMessage;
+}
 
 int getNext()
 {
@@ -37,6 +47,13 @@ int getNext()
     // printf("next char: %c\n", c);
     return c;
 }
+
+int getLine()
+{
+    if(lineNum==1) return 1;
+    else return --lineNum;
+}
+
 
 token scan() {
     static int c = ' ';

@@ -1,6 +1,7 @@
-// prog4
-read a b
+/* prog1 */
+read a
+read b
 area := a * b
 perimeter := 2 * (a + b)
-write area
+write area b
 write perimeter
