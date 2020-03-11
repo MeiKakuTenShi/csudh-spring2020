@@ -74,6 +74,11 @@ syscall
 move    $t1, $t7               # array index address
 li      $t2, 0                 # counter
 li      $t5, 0                 # sum
+
+lw      $t6, ($t1)
+sw      $t6, min
+sw      $t6, max
+
 print_loop:
 # CONDITION TO TERMINATE LOOP
 slt     $t6, $t2, $t0
@@ -168,22 +173,23 @@ syscall
 li      $t2, 0				# i : outer loop
 
 print_sort:
-slt     $t6, $t2, $t0
-beq     $t6, $0,  end_sort
+slt     $t9, $t2, $t0
+beq     $t9, $0,  end_sort
 
 move    $t1, $t7
 li      $t5, 0				# j : inner loop
 
-lw      $t4, ($t1)
+move    $t4, $t1
 
 find_max:
-slt     $t6, $t5, $t0
-beq     $t6, $0,  max_done
+slt     $t9, $t5, $t0
+beq     $t9, $0,  max_done
 
 lw      $t3, ($t1)
+lw      $t6, ($t4)
 
-slt     $t6, $t4, $t3
-movn    $t4, $t1, $t6
+slt     $t9, $t6, $t3
+movn    $t4, $t1, $t9
 
 addiu	$t1, $t1, 4
 addiu   $t5, $t5, 1
@@ -195,9 +201,9 @@ li      $v0, 1
 lw      $a0, ($t4)
 syscall
 
-addiu   $a1, $t2, 1
-slt     $t6, $a1, $t0
-beq     $t6, $0,  no_sep
+addiu   $t8, $t2, 1
+slt     $t9, $t8, $t0
+beq     $t9, $0,  no_sep
 
 li      $v0, 4
 la      $a0, item_sep
@@ -205,7 +211,7 @@ syscall
 
 no_sep:
         
-li      $t6, -999
+addi    $t6, $0, -999
 sw      $t6, ($t4)
 
 addiu   $t2, $t2, 1

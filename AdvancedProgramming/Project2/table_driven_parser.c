@@ -24,11 +24,11 @@ FILE *src;
  ****************************************************************************/
 
 // all symbols in language
-typedef enum {NONE, program, stmt_list, stmt, expr, term_tail, term,
+typedef enum {program, stmt_list, stmt, expr, term_tail, term,
                 factor, factor_tail, mult_op, add_op,
                 $$, eps, identifier, assignment, input, output, plus,
                 minus, star, slash, lpar, rpar, number} symbol;
-char *sym_names[] = { "Null", "program", "stmt_list", "stmt", "expr",
+char *sym_names[] = { "program", "stmt_list", "stmt", "expr",
                       "term_tail", "term", "factor", "factor_tail",
                       "mult_op", "add_op", "$$", "epsilon", "id",
                       ":=", "read", "write", "+", "-", "*", "/",
@@ -42,6 +42,8 @@ symbol nonterminals[] = {program, stmt_list, stmt,
                          expr, term_tail, term, factor,
                          factor_tail, add_op, mult_op};
 
+static symbol expSymbol;
+static bool done;
 
 // stores action: {predict:0 or error:1}; production: {[symbol1, symbol2, ... , symbol5], [], [], []}
 struct table_item
@@ -51,17 +53,17 @@ struct table_item
 };
 // complete hard-coded parse table -- based on figure 2.20
 struct table_item parseTable[sizeof(nonterminals)/sizeof(*nonterminals)][sizeof(names)/sizeof(*names)] = {
-    {{0, {stmt_list, $$}},                  {1, {}},                        {0, {stmt_list, $$}},       {0, {stmt_list, $$}},       {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {0, {stmt_list, $$}}},  // program
-    {{0, {stmt, stmt_list}},                {1, {}},                        {0, {stmt, stmt_list}},     {0, {stmt, stmt_list}},     {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {0, {eps}}},            // stmt_list
-    {{0, {identifier, assignment, expr}},   {1, {}},                        {0, {input, identifier}},   {0, {output, expr}},        {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // stmt
-    {{0, {term, term_tail}},                {0, {term, term_tail}},         {1, {}},                    {1, {}},                    {1, {}}, {0, {term, term_tail}},        {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // expr
-    {{0, {eps}},                            {1, {}},                        {0, {eps}},                 {0, {eps}},                 {1, {}}, {1, {}},                       {0, {eps}}, {0, {add_op, term, term_tail}},     {0, {add_op, term, term_tail}},     {1, {}},                                {1, {}},                                {0, {eps}}},            // term_tail
-    {{0, {factor, factor_tail}},            {0, {factor, factor_tail}},     {1, {}},                    {1,},                       {1, {}}, {0, {factor, factor_tail}},    {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // term
-    {{0, {eps}},                            {1, {}},                        {0, {eps}},                 {0, {eps}},                 {1, {}}, {1,},                          {0, {eps}}, {0, {eps}},                         {0, {eps}},                         {0, {mult_op, factor, factor_tail}},    {0, {mult_op, factor, factor_tail}},    {0, {eps}}},            // factor_tail
-    {{0, {identifier}},                     {0, {number}},                  {1, {}},                    {1, {}},                    {1, {}}, {0, {lpar, expr, rpar}},       {1, {}},    {1, {}},                            {1, {}},                            {1, {}},                                {1, {}},                                {1, {}}},               // factor
-    {{1, {}},                               {1, {}},                        {1, {}},                    {1, {}},                    {1, {}}, {1, {}},                       {1, {}},    {0, {plus}},                        {0, {minus}},                       {1, {}},                                {1, {}},                                {1, {}}},               // add_op
-    {{1, {}},                               {1, {}},                        {1, {}},                    {1, {}},                    {1, {}}, {1, {}},                       {1, {}},    {1, {}},                            {1, {}},                            {0, {star}},                            {0, {slash}},                           {1, {}}},               // mult_op
-};//    id,                                 literal,                         read,                       write,                        :=,       (,                             ),          +,                                  -,                                  *,                                       /,                                      $$
+    {{0, {stmt_list, $$}},                  {1, },                       {0, {stmt_list, $$}},       {0, {stmt_list, $$}},    {1, },    {1, },                       {1, },       {1, },                            {1, },                              {1, },                                  {1, },                                  {0, {stmt_list, $$}}},  // program
+    {{0, {stmt, stmt_list}},                {1, },                       {0, {stmt, stmt_list}},     {0, {stmt, stmt_list}},  {1, },    {1, },                       {1, },       {1, },                            {1, },                              {1, },                                  {1, },                                  {0, {eps}}},            // stmt_list
+    {{0, {identifier, assignment, expr}},   {1, },                       {0, {input, identifier}},   {0, {output, expr}},     {1, },    {1, },                       {1, },       {1, },                            {1, },                              {1, },                                  {1, },                                  {1, }},                 // stmt
+    {{0, {term, term_tail}},                {0, {term, term_tail}},      {1, },                      {1, },                   {1, },    {0, {term, term_tail}},      {1, },       {1, },                            {1, },                              {1, },                                  {1, },                                  {1, }},                 // expr
+    {{0, {eps}},                            {1, },                       {0, {eps}},                 {0, {eps}},              {1, },    {1, },                       {0, {eps}},  {0, {add_op, term, term_tail}},   {0, {add_op, term, term_tail}},     {1, },                                  {1, },                                  {0, {eps}}},            // term_tail
+    {{0, {factor, factor_tail}},            {0, {factor, factor_tail}},  {1, },                      {1,},                    {1, },    {0, {factor, factor_tail}},  {1, },       {1, },                            {1, },                              {1, },                                  {1, },                                  {1, }},                 // term
+    {{0, {eps}},                            {1, },                       {0, {eps}},                 {0, {eps}},              {1, },    {1, },                       {0, {eps}},  {0, {eps}},                       {0, {eps}},                         {0, {mult_op, factor, factor_tail}},    {0, {mult_op, factor, factor_tail}},    {0, {eps}}},            // factor_tail
+    {{0, {identifier}},                     {0, {number}},               {1, },                      {1, },                   {1, },    {0, {lpar, expr, rpar}},     {1, },       {1, },                            {1, },                              {1, },                                  {1, },                                  {1, }},                 // factor
+    {{1, },                                 {1, },                       {1, },                      {1, },                   {1, },    {1, },                       {1, },       {0, {plus}},                      {0, {minus}},                       {1, },                                  {1, },                                  {1, }},                 // add_op
+    {{1, },                                 {1, },                       {1, },                      {1, },                   {1, },    {1, },                       {1, },       {1, },                            {1, },                              {0, {star}},                            {0, {slash}},                           {1, }},                 // mult_op
+};//    id,                                 literal,                     read,                       write,                   :=,       (,                            ),          +,                                -,                                  *,                                       /,                                      $$
 
 
 
@@ -126,8 +128,10 @@ int tokenInd(token t) {
     }
 }
 
-void error() {
-    printf("syntax error\n");
+void error(char* msg) {
+    printf("syntax error - ");
+    printf(msg);
+    printf("\n\n");
     exit(1);
 }
 // Parse Stack
@@ -143,128 +147,127 @@ int isTerminal(symbol s) {
     return 0;
 }
 
-void match(symbol s) {
-    printf ("the token here is %s \n",names[input_token]);
+void match() {
+    printf ("current input token: %s\t|\tcurrent top of stack: %s\n", names[input_token], sym_names[expSymbol]);
 
-    //input_token = scan();
-    printf("testing s ------ %d",nonTermInd(s));
+    if (expSymbol == eps) {
+        topOfStack--;
+        return;
+    }
+    
     switch(input_token) {  //matching tokens
         case read:
-            if (s == read) {
-                token input_token;
-                int n = tokenInd(input_token);
-                //printf("n= %d\n",n );
-                if (n==0){
-                    printf ("the following token is: %s - match found.\n",names[input_token]);
-                    topOfStack--;  //remove read from stack
-                } else {
-                    //puts("SYNTAX ERROR. token does not match prediction");
-                }
+            if (expSymbol == input) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case write:
-            if (s == write) {
-                int n = nonTermInd(input_token);
-                  printf ("input_token follows write: %s\n",names[input_token]);
-                if (n==3){
-                    printf ("the following token is nonterminal: expr - match found.\n");
-                    topOfStack--;  //remove read from stack
-                } else {
-                    puts("SYNTAX ERROR. token does not match prediction");
-                }
+            if (expSymbol == output) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case id:
-            if (s == id) {
-
-
-              //  printf ("the token is %s \n",names[input_token]);
-
+            if (expSymbol == identifier) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case literal:
-            if (s == literal) {
-
-
-                printf ("the token is %s \n",names[input_token]);
-                return 1;
+            if (expSymbol == number) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case becomes:
-            if (s == becomes) {
-
-                printf ("the token is %s \n",names[input_token]);
-
+            if (expSymbol == assignment) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case addOp:
-            if (s == addOp) {
-
-                printf ("the token is %s \n",names[input_token]);
-
+            if (expSymbol == plus) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case subOp:
-            if (s == subOp) {
-
-                printf ("the token is %s \n",names[input_token]);
-
+            if (expSymbol == minus) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case mulOp:
-            if (s == mulOp) {
-
-                printf ("the token is %s \n",names[input_token]);
-
+            if (expSymbol == star) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case divOp:
-            if (s == divOp) {
-
-                printf ("the token is %s \n",names[input_token]);
-
+            if (expSymbol == slash) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case lparen:
-            if (s == lparen) {
-
-                printf ("the token is %s \n",names[input_token]);
-
+            if (expSymbol == lpar) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case rparen:
-            if (s == rparen) {
-
-                printf ("the token is %s \n",names[input_token]);
-
+            if (expSymbol == rpar) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         case eof:
-            if (s == eof) {
-
-                printf ("the token is %s \n",names[input_token]);
-
+            if (expSymbol == $$) {
+                printf("\tMATCH\n");
+                topOfStack--;
+                input_token = scan();
+            } else {
+                error("Match Fail");
             }
             break;
         default:
-            error();
-            printf("syntax error \n");
-            exit(1);
+            error("input token not recognized");
         }
 }
-
-int predict(int row){
-    int i;
-    int number_of_nonterminals=0;
-    for(i=0; i<12;i++){
-        if (parseTable[row][i].action==0){
-            number_of_nonterminals++;
-            //counts possible production of terminals
-        }
-    }
-    return number_of_nonterminals;
-}
-
 
 int main(int argc, char* argv[])
 {
@@ -272,8 +275,8 @@ int main(int argc, char* argv[])
     char *prog_prefix;
     char file_name[32];
 
+    char* err_msg;
 
-    symbol expSymbol;
     int ntermInd;
     int tokInd;
     struct table_item item;
@@ -314,13 +317,13 @@ int main(int argc, char* argv[])
         if (isTerminal(expSymbol))
         {
             // printf("expected symbol is terminal: %s", sym_names[expSymbol]);
-            // TODO: match expected goes here
-            match(expSymbol);
+
+            match();
 
             if (expSymbol == $$)
             {
                 printf("success -- no lexical or syntactical errors");
-                break;
+                done = true;
             }
 
         } else
@@ -340,7 +343,7 @@ int main(int argc, char* argv[])
                 if (item.action == 1)
                 {
                     // syntax error found
-                    printf("\nSYNTAX ERROR - incompatible (%s - %s)\n", sym_names[expSymbol], names[input_token]);               
+                    error("input token and top of stack incompatible\n");               
                 } else
                 {
                     // push production to stack
@@ -363,15 +366,8 @@ int main(int argc, char* argv[])
                 }
                 printf("\n\n");
             }
-            else
-            {
-                printf("index error: symbol-%s, token-%s", expSymbol, input_token);
-            }
-            
-            
         }
-
-    }while(topOfStack > 0);
+    }while(!done);
 
     if (src != NULL)
         fclose(src);
